@@ -99,7 +99,7 @@ int main()
 				cvReleaseImage(&img);
 				img = NULL;
 			}
-			cvSetTrackbarPos(TRACKBARNAME, WINNAME, 0);
+//			cvSetTrackbarPos(TRACKBARNAME, WINNAME, 0);
 			cvDestroyWindow(WINNAME);
 		}
 		else
