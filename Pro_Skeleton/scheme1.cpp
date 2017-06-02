@@ -4,7 +4,7 @@
 	根据提示输入
 	trackbar:0，可绘制状态（无法拖拽），左键点击图片会生成相应的点
 	trackbar:1, 可拖动状态（无法绘制），右击关节点移动鼠标可进行拖拽，左击固定
-	根据提示保存，文件名按照系统时间命名
+	根据提示保存，文件名按照系统时间命名(默认保存的路径是D:\project\outPut\.jpg)
 */
 
 #include<Windows.h>
@@ -18,19 +18,21 @@
 #include<cmath>
 #include"type.h"
 
+std::string outputPath = "D:\\project\\outPut\\";
+
 IplImage *img = NULL;
 IplImage *imgNew = NULL;
-int curJoint = -1;						//记录选中的关节点，初始值为-1
-int vertexNum = 0;
+int curJoint;							//记录选中的关节点，初始值为-1
+int vertexNum;
 int trackValue;
-int pre = -1;
+int pre;
 std::vector<Point> vTotal;				//关节
 std::vector<int> Graph[MAXNODE];		//骨架邻接图
 std::vector<int> tmp;
-bool visit[MAXNODE] = { false };		//访问标记
-bool lock_status = false;				//锁定标志：false-可绘制，true-可拖拽
-bool onMove = false;					//拖拽开关
-std::string outputPath = "D:\\project\\outPut\\";
+bool visit[MAXNODE];					//访问标记
+bool lock_status		;				//锁定标志：false-可绘制，true-可拖拽
+bool onMove;							//拖拽开关
+
 
 //鼠标相应事件
 void onMouse(int event, int x, int y, int flags, void *param);
@@ -44,6 +46,8 @@ void onChange(int pos);
 void reDraw();
 //DFS遍历绘图
 void DFSRedraw(int u);
+void reset();
+void init();
 
 int main()
 {
@@ -54,6 +58,8 @@ int main()
 	while (choice)
 	{
 		system("cls");
+		init();
+
 		printf("请输入照片路径: ");
 		scanf("%s", str);
 		img = cvLoadImage(str, 1);
@@ -65,7 +71,6 @@ int main()
 			cvShowImage(WINNAME, imgNew);
 			cvSetMouseCallback(WINNAME, onMouse, 0);
 			cvWaitKey(0);
-
 			//保存图片选择
 			printf("是否保存？0-否，1-是: ");
 			scanf("%d", &save);
@@ -108,8 +113,25 @@ int main()
 	return 0;
 }
 
-//重置访问标记
+
 void init()
+{
+	for (int i = 0; i < MAXNODE; i++)
+	{
+		if (Graph[i].size() != 0) Graph[i].clear();
+	}
+	std::fill(visit, visit + MAXNODE, false);
+	vTotal.clear();
+	tmp.clear();
+	curJoint = -1;
+	pre = -1;
+	vertexNum = 0;
+	lock_status = false;
+	onMove = false;
+}
+
+//重置访问标记
+void reset()
 {
 	std::fill(visit, visit + MAXNODE, false);
 }
@@ -130,7 +152,7 @@ void reDraw()
 	}
 
 	imgNew = (IplImage*)cvClone(img);
-	init();
+	reset();
 	for (unsigned int i = 0; i < vTotal.size(); i++)
 	{
 		pre = -1;
