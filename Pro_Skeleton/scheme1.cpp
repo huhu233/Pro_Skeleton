@@ -43,7 +43,7 @@ void DoMovement(int xpos, int ypos, int curPos);
 //trackbar响应事件
 void onChange(int pos);
 //重绘骨架
-void reDraw();
+void reDraw(int curPos);
 //DFS遍历绘图
 void DFSRedraw(int u);
 void reset();
@@ -99,6 +99,7 @@ int main()
 				cvReleaseImage(&img);
 				img = NULL;
 			}
+			cvSetTrackbarPos(TRACKBARNAME, WINNAME, 0);
 			cvDestroyWindow(WINNAME);
 		}
 		else
@@ -126,6 +127,7 @@ void init()
 	curJoint = -1;
 	pre = -1;
 	vertexNum = 0;
+	trackValue = 0;
 	lock_status = false;
 	onMove = false;
 }
@@ -142,7 +144,7 @@ void onChange(int pos)
 	else lock_status = true;
 }
 
-void reDraw()
+void reDraw(int curPos)
 {
 	//重绘之前释放之前的图片
 	if (imgNew != NULL)
@@ -161,6 +163,8 @@ void reDraw()
 			DFSRedraw(i);
 		}
 	}
+	
+	cvCircle(imgNew, cvPoint(vTotal[curPos].x, vTotal[curPos].y), RADIUS, PCOLOR_UNLOCK, CV_FILLED, cv::LINE_8, 0);
 	cvShowImage(WINNAME, imgNew);
 }
 
@@ -222,7 +226,11 @@ void onMouse(int event, int x, int y, int flags, void *param)
 		}
 		else                                              
 		{
-			if (onMove == true) onMove = false;
+			if (onMove == true)
+			{
+				onMove = false;
+				cvCircle(imgNew, cvPoint(vTotal[curPos].x, vTotal[curPos].y), RADIUS, PCOLOR, CV_FILLED, cv::LINE_8, 0);
+			}
 		}//开关，设置onMove状态
 
 		cvShowImage(WINNAME, imgNew);
@@ -233,6 +241,7 @@ void onMouse(int event, int x, int y, int flags, void *param)
 		{
 			onMove = true;
 			curJoint = curPos;
+			cvCircle(imgNew, cvPoint(vTotal[curPos].x, vTotal[curPos].y), RADIUS, PCOLOR_UNLOCK, CV_FILLED, cv::LINE_8, 0);
 		}
 	}//右击，选择要拖动的节点
 
@@ -250,7 +259,7 @@ void DoMovement(int xpos, int ypos, int curPos)
 		vTotal[curPos].y = ypos;
 	}//防止拖动过快出现异常
 
-	reDraw();
+	reDraw(curPos);
 }
 
 int isJoint(int x, int y)
