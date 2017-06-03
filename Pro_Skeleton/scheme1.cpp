@@ -214,8 +214,11 @@ void onMouse(int event, int x, int y, int flags, void *param)
 				b.p1 = tmp[0];
 				b.p2 = tmp[1];
 				b.status = ON;
-				bTotal.push_back(b);
-				cvLine(imgNew, cvPoint(vTotal[tmp[0]].x, vTotal[tmp[0]].y), cvPoint(vTotal[tmp[1]].x, vTotal[tmp[1]].y), BCOLOR_ON, BLINE, cv::LINE_8, 0);
+				if (isBone(tmp[0], tmp[1]) == -1)
+				{
+					bTotal.push_back(b);
+					cvLine(imgNew, cvPoint(vTotal[tmp[0]].x, vTotal[tmp[0]].y), cvPoint(vTotal[tmp[1]].x, vTotal[tmp[1]].y), BCOLOR_ON, BLINE, cv::LINE_8, 0);
+				}
 				tmp.clear();
 			}//如果存在两个相异的点，则可以绘制线条
 
@@ -275,7 +278,7 @@ void onMouse(int event, int x, int y, int flags, void *param)
 		{
 			onMove = true;
 			curJoint = curPos;
-	//		cvCircle(imgNew, cvPoint(vTotal[curPos].x, vTotal[curPos].y), RADIUS, PCOLOR_UNLOCK, CV_FILLED, cv::LINE_8, 0);
+			cvCircle(imgNew, cvPoint(vTotal[curPos].x, vTotal[curPos].y), RADIUS, PCOLOR_UNLOCK, CV_FILLED, cv::LINE_8, 0);
 		}
 	}//右击，选择要拖动的节点
 
